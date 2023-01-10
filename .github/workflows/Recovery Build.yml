@@ -48,6 +48,11 @@ jobs:
     #if: github.event.repository.owner.id == github.event.sender.id
     runs-on: ubuntu-20.04
     steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '2.0' 
+    
     - name: Display Run Parameters
       run: |
         echo "::group::User Environment Variables"
@@ -80,6 +85,8 @@ jobs:
       with:
         distribution: 'zulu'
         java-version: '8'
+        
+ 
 
     - name: Setup SSH Keys
       if: ${{ startsWith(github.event.inputs.MANIFEST_URL, 'git@github.com') }}
@@ -145,9 +152,10 @@ jobs:
 
     - name: Building recovery
       run: |
-        source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
-        lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng && make clean && make ${{ github.event.inputs.BUILD_TARGET }}image -j$(nproc --all)
+        source build/envsetup.sh        
+        lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng 
+        mka ${{ github.event.inputs.BUILD_TARGET }}image
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
     - name: Upload to Release
